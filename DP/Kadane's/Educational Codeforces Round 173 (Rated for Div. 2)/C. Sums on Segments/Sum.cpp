@@ -1,0 +1,372 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using str = string;
+using ch = char;
+using ll = long long;
+using ull = unsigned long long;
+using db = double;
+using ld = long double;
+using vi = vector<int>;
+using vvi = vector<vector<int>>;
+using vll = vector<ll>;
+using vvll = vector<vector<ll>>;
+using vld= vector<ld>;
+using vvdl = vector<vector<ld>>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using vstr = vector<str>;
+using vpii = vector<pair<int, int>>;
+using vvpii = vector<vector<pair<int, int>>>;
+using vpstrstr = vector<pair<str, str>>;
+using vpvivi = vector<pair<vector<int>,vector<int>>>;
+using vvb = vector<vector<bool>>;
+using vb = vector<bool>;
+using vch = vector<char>;
+using vvch = vector<vector<char>>;
+using vvstr = vector<vector<str>>;
+using vd = vector<double>;
+
+#define mset multiset
+#define mmap multimap
+#define uset unordered_set
+#define umap unordered_map
+#define umset unordered_multiset
+#define ummap unordered_multimap
+#define pq priority_queue
+
+#define all(v) (v).begin(), (v).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define sz(x) (int)(x).size()
+#define clr(x) x.clear()
+#define pb push_back
+#define rs resize
+#define eb emplace_back
+#define rv reverse
+#define mp make_pair
+#define F first
+#define S second
+
+#define pf push_front
+#define pb push_back
+#define popf pop_front
+#define popb pop_back
+#define ft front
+#define bk back
+#define mxe max_element
+
+#define lb lower_bound
+#define ub upper_bound
+#define bs binary_search
+
+// Utility Functions
+template <typename T>
+void printVector(const vector<T>& vec){
+    for (const auto& el : vec) cout << el << " ";
+    cout << "\n";
+}
+
+void precision(int x){
+	cout.setf(ios::fixed | ios::showpoint);
+	cout.precision(x);
+	return;
+}
+
+bool is_prime(int x){ // Iterate up to the square root of x
+    for (int i = 2; i * i <= x; i++) { // If x is divisible by i, it's not prime
+        if (x % i == 0) return false;
+    }
+    return true; // If no divisors are found, x is prime
+}
+
+// Fast Input/Output
+void fast_io() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+}
+
+const int K = 1e6 + 5; // change according to your needs
+vi mn(K, 0); // Smallest prime factor of each number
+vvi fcv(K); // Prime factorization for each number (only returns each distinct factor once)
+
+
+void precompute_prime_factors() { // Modified Sieve
+    mn[1] = 1; // Base case: 1 has no prime factors
+    for (int i = 2; i < K; i++) {
+        if (!mn[i]) { // If i has no prime factor recorded yet, it is a prime number.
+            for (int j = 1; j * i < K; ++j) {
+                if (!mn[i * j])
+                    mn[i * j] = i; // Mark i as the smallest prime factor for all multiples of i.
+            }
+        }
+    }
+
+    // Generate prime factor lists for every number up to N
+    for (int i = 1; i < K; i++) {
+        int u = i;
+        while (u != 1) {
+            int v = mn[u]; // Smallest prime factor of u
+            fcv[i].push_back(v); // Add it to the factorization of i
+            while (u % v == 0) u /= v; // Remove all occurrences of v from u, we only
+            // want to add it once since we want DISTINCT prime factors
+        }
+    }
+}
+
+// Global Variables
+vector<ll> fact, inv_fact;
+
+// Function to calculate modular exponentiation
+ll mod_exp(ll base, ll exp, ll mod){
+    ll result = 1;
+    while (exp > 0) {
+        if (exp & 1) result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+// Precompute factorials and modular inverses
+void precompute_factorials(int n, ll mod){
+    fact.resize(n + 1);
+    inv_fact.resize(n + 1);
+    fact[0] = inv_fact[0] = 1;
+    for (int i = 1; i <= n; i++) fact[i] = (fact[i - 1] * i) % mod;
+    for (int i = 0; i <= n; i++) inv_fact[i] = mod_exp(fact[i], mod - 2, mod);
+}
+
+// Calculate nCr % MOD
+// to use this just call precompute_factorials
+ll nCr(int n, int r, ll mod){
+    if (n < r || r < 0) return 0;
+    return (((fact[n] * inv_fact[r]) % mod) * inv_fact[n - r]) % mod;
+}
+
+// Calculate nCr
+// don't need to call precompute_factorials for this.
+ll nCr_no_mod(int n, int r){
+    if (r < 0 || r > n) return 0;
+    ll res = 1;
+    for (int i=1; i<=r; i++){
+        res *= (n - i + 1);
+        res /= i;
+    }
+    return res;
+}
+
+ll factorial(int a){
+	ll ans = 1;
+	for (int i = 2; i <= a; i++) {
+		ans *= ll(i);
+	}
+	return ans;
+}
+ 
+ll factorial_by_mod(int a, ll mod){
+	ll ans = 1;
+	for (int i = 2; i <= a; i++) {
+		ans *= ll(i);
+		ans %= mod;
+	}
+	return ans;
+}
+
+ll binpow(ll a, int b){
+	ll ans = 1;
+	while (b) {
+		if ((b & 1) == 1) {
+			ans *= a;
+		}
+		b >>= 1;
+		a *= a;
+	}
+	return ans;
+}
+ 
+bool is_square(ll a){
+	ll b = ll(sqrt(a));
+	return (b * b == a);
+}
+ 
+bool is_cube(ll a){
+	ll b = ll(cbrt(a));
+	return (b * b * b == a);
+}
+ 
+int digit_sum(ll a){
+	int sum = 0;
+	while (a) {
+		sum += int(a % 10);
+		a /= 10;
+	}
+	return sum;
+}
+
+ll gcd(ll a, ll b){
+	while (b) {
+		a %= b;
+		swap(a, b);
+	}
+	return a;}
+ 
+ll lcm(ll a, ll b){
+	return a / gcd(a, b) * b;
+}
+
+// Constants
+const int MAX = int(1e9 + 5);
+const ll MAXL = ll(1e18 + 5);
+const ll MOD = ll(1e9 + 7);
+const ll MOD2 = ll(998244353);
+
+const int LOGN = 20; // sparse table interval
+const int MAXN = 6e5+5; // fenwick = N, trie  = N * number of bits
+
+// solve time ~ can't solve.
+// Awesome problem! I was so close to solving it, my implementation was off!
+// At least I had the idea right.
+// Observation 1:
+// if the array ONLY has elements 1 or -1.
+// then the solution is just Kadane's algo to get the min and max subarray sum.
+// then just print the answer from the min to the max.
+// Why?
+// Because the array is made of 1 or -1.
+// That means there is no gaps, if we can achieve a sum of k, then we can 
+// definitely get all the sum from 0 to k.
+// Because the elements are all just 1 or -1.
+// Lets say if the elements are not just 1 or -1, then the array is [2,3].
+// our max subarray sum is 5, but that does not mean we can get 4, because
+// the elements are sparse!
+// But, if the array is just 1 or -1, then its always consecutive, so we can
+// definitely get all the sum from 1 to 5.
+
+// Now, consider the array when there exist a non 1 or -1 element.
+// In this case, we want to know what is the biggest and smallest number this
+// non 1 or -1 number can reach.
+// We can do prefix + suffix sum for this, then get the max and min on both
+// sides and sum them to the number, and thats the min and max it can reach.
+// Why?
+// take [1,-1,10,1,1]
+// suff = [0,-1]  pref = [1,2]
+// Again, because the elements are all 1 or -1, the sum is always consecutive.
+// So, if we can get some -k or k starting from the index of the non 1 or -1 
+// number.
+// then we can definitely achieve x + k or x - k, where x is the special number
+// We can do this on both side of x (prefix and suffix).
+// so we can just say max = x + k1 + k2, min = x + k3 + k4.
+// then print everything from min to max.
+// Now, we are not done yet.
+// We were considering all the sums including x, now we need to consider 
+// without x. What is the max and min sum I can reach?
+// The answer is Kadane's again, with the same reasoning, the elements are 
+// all just 1 and -1.
+// But, we want to exclude x, so we have to do this 4 times.
+// min left, max left, min right, max right.
+// then we get the smallest on both sides, and biggest on both sides
+// and print all of the elements. 
+// That is the answer.
+// I used a set, which makes life easier to handle duplicates. But the idea
+// is just the same! 
+// Goated problem.
+
+int maxSubarraySum(vll& a){
+    if (sz(a) == 0) return 0;
+ 
+    ll res = a[0];
+    ll maxEnding = a[0];
+ 
+    for (int i = 1; i<sz(a); i++){
+        // Find the maximum sum ending at index i by either extending
+        // the maximum sum subarray ending at index i - 1 or by
+        // starting a new subarray from index i
+        maxEnding = max(maxEnding + a[i], a[i]);
+ 
+        // Update res if maximum subarray sum ending at index i > res
+        res = max(res, maxEnding);
+    }
+    return max(res, 0ll);
+}
+ 
+void solve(){
+    int n, m, k;
+    cin >> n;
+
+    vll a(n);
+    for (ll& x : a) cin >> x;
+
+    ll vv = 0;
+    ll ii = -1;
+    for (ll i = 0; i < n; i++){
+        if (a[i] != 1 && a[i] != -1){
+            vv = a[i];
+            ii = i;
+        }
+    }
+
+    set<ll> s, s1;
+    s.insert(0);
+    s1.insert(0);
+    if (ii != -1){
+        ll sum = 0;
+        for (ll i = ii + 1; i < n; i++){
+            sum += a[i];
+            s.insert(sum);
+        }
+        sum = 0;
+        for (ll i = ii - 1; i >= 0; i--){
+            sum += a[i];
+            s1.insert(sum);
+        }
+        ll l = *(s.begin()) + *(s1.begin()), r = *(s.rbegin()) + *(s1.rbegin());
+        ll a1 = l + a[ii];
+        ll b1 = r + a[ii];
+        vll v1, v2, v3, v4;
+
+        for (ll i = 0; i < ii; i++){
+            v1.pb(a[i]);
+            v2.pb(-a[i]);
+        }
+
+        for (ll i = ii + 1; i < n; i++){
+            v3.pb(a[i]);
+            v4.pb(-a[i]);
+        }
+
+        ll b2 = maxSubarraySum(v1); // get max left
+        ll a2 = -maxSubarraySum(v2); // get min left
+        ll b3 = maxSubarraySum(v3); // get max right
+        ll a3 = -maxSubarraySum(v4); // get min right
+
+        set<ll> ans;
+        for (ll i = a1; i <= b1; i++) ans.insert(i);
+        for (ll i = a2; i <= b2; i++) ans.insert(i);
+        for (ll i = a3; i <= b3; i++) ans.insert(i);
+        
+        cout << sz(ans) << '\n';
+        for (ll x : ans) cout << x << " ";
+
+        cout << '\n';
+    }
+    else{
+        ll c = maxSubarraySum(a); // get max subarray sum
+        for (ll& x : a) x = -x;
+        ll b = -maxSubarraySum(a); // get min subarray sum
+
+        cout << c - b + 1 << '\n';
+        for (ll i = b; i <= c; i++) cout << i << " ";
+        
+        cout << '\n';
+    }
+}
+
+int main() {
+    fast_io();
+    // precompute_factorials(MAXN, MOD);
+    int t;
+    cin >> t;
+    while (t--) solve();
+    // solve();
+    return 0;
+}

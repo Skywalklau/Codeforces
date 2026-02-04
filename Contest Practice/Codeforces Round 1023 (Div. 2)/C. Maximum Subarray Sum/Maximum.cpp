@@ -1,0 +1,400 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using str = string;
+using ch = char;
+using ll = long long;
+using ull = unsigned long long;
+using db = double;
+using ld = long double;
+using vi = vector<int>;
+using vvi = vector<vector<int>>;
+using vll = vector<ll>;
+using vvll = vector<vector<ll>>;
+using vld= vector<ld>;
+using vvld = vector<vector<ld>>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using vstr = vector<str>;
+using vpii = vector<pair<int, int>>;
+using vpll = vector<pair<long long, long long>>;
+using vvpii = vector<vector<pair<int, int>>>;
+using vpstrstr = vector<pair<str, str>>;
+using vpvivi = vector<pair<vector<int>,vector<int>>>;
+using vvb = vector<vector<bool>>;
+using vb = vector<bool>;
+using vch = vector<char>;
+using vvch = vector<vector<char>>;
+using vvstr = vector<vector<str>>;
+using vd = vector<double>;
+
+#define mset multiset
+#define mmap multimap
+#define uset unordered_set
+#define umap unordered_map
+#define umset unordered_multiset
+#define ummap unordered_multimap
+#define pq priority_queue
+
+#define all(v) (v).begin(), (v).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define sz(x) (int)(x).size()
+#define clr(x) x.clear()
+#define pb push_back
+#define rs resize
+#define eb emplace_back
+#define rv reverse
+#define mp make_pair
+#define F first
+#define S second
+
+#define pf push_front
+#define pb push_back
+#define popf pop_front
+#define popb pop_back
+#define ft front
+#define bk back
+#define mxe max_element
+#define mne min_element
+
+#define lb lower_bound
+#define ub upper_bound
+#define bs binary_search
+
+// Utility Functions
+template <typename T>
+void printVector(const vector<T>& vec){
+    for (const auto& el : vec) cout << el << " ";
+    cout << "\n";
+}
+
+void precision(int x){
+	cout.setf(ios::fixed | ios::showpoint);
+	cout.precision(x);
+	return;
+}
+
+bool is_prime(int x){ // Iterate up to the square root of x
+    if (x == 1) return false;
+    for (int i = 2; i * i <= x; i++) { // If x is divisible by i, it's not prime
+        if (x % i == 0) return false;
+    }
+    return true; // If no divisors are found, x is prime
+}
+
+// Fast Input/Output
+void fast_io() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+}
+
+const ll K = 6e6+5; // change according to your needs
+vll mn(K, 0); // Smallest prime factor of each number
+vvll fcv(K); // Prime factorization for each number (only returns each distinct factor once)
+
+
+void precompute_prime_factors() { // Modified Sieve
+    mn[1] = 1; // Base case: 1 has no prime factors
+    for (ll i = 2; i < K; i++) {
+        if (!mn[i]) { // If i has no prime factor recorded yet, it is a prime number.
+            for (ll j = 1; j * i < K; ++j) {
+                if (!mn[i * j])
+                    mn[i * j] = i; // Mark i as the smallest prime factor for all multiples of i.
+            }
+        }
+    }
+
+    // Generate prime factor lists for every number up to N
+    for (int i = 1; i < K; i++) {
+        int u = i;
+        while (u != 1) {
+            int v = mn[u]; // Smallest prime factor of u
+            fcv[i].push_back(v); // Add it to the factorization of i
+            while (u % v == 0) u /= v; // Remove all occurrences of v from u, we only
+            // want to add it once since we want DISTINCT prime factors
+        }
+    }
+}
+
+void sieve() {
+    mn[1] = 1; // 1 is not prime
+    for (ll i = 2; i < K; i++) {
+        if (mn[i] == 0) { // i is prime
+            mn[i] = i;
+            for (ll j = i * i; j < K; j += i) {
+                if (mn[j] == 0) {
+                    mn[j] = i; // smallest prime factor of j
+                }
+            }
+        }
+    }
+}
+
+vi get_primes_up_to_K() {
+    vi primes;
+    for (ll i = 2; i < K; i++) {
+        if (mn[i] == i) primes.pb(i);
+    }
+    return primes;
+}
+
+// get all factors up to n
+vvi factors(K);
+
+void getAllFactors(){
+    for (int i = 1; i <= K; i++) {
+        for (int j = i; j <= K; j += i) {
+            factors[j].push_back(i); // i is a divisor of j
+        }
+    }
+}
+
+// Global Variables
+vector<ll> fact, inv_fact;
+
+// Function to calculate modular exponentiation
+ll mod_exp(ll base, ll exp, ll mod){
+    ll result = 1;
+    while (exp > 0) {
+        if (exp & 1) result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+// Precompute factorials and modular inverses
+void precompute_factorials(int n, ll mod){
+    fact.resize(n + 1);
+    inv_fact.resize(n + 1);
+    fact[0] = inv_fact[0] = 1;
+    for (int i = 1; i <= n; i++) fact[i] = (fact[i - 1] * i) % mod;
+    for (int i = 0; i <= n; i++) inv_fact[i] = mod_exp(fact[i], mod - 2, mod);
+}
+
+// Calculate nCr % MOD
+// to use this just call precompute_factorials
+ll nCr(int n, int r, ll mod){
+    if (n < r || r < 0) return 0;
+    return (((fact[n] * inv_fact[r]) % mod) * inv_fact[n - r]) % mod;
+}
+
+// Calculate nCr
+// don't need to call precompute_factorials for this.
+ll nCr_no_mod(int n, int r){
+    if (r < 0 || r > n) return 0;
+    ll res = 1;
+    for (int i=1; i<=r; i++){
+        res *= (n - i + 1);
+        res /= i;
+    }
+    return res;
+}
+
+ll factorial(int a){
+	ll ans = 1;
+	for (int i = 2; i <= a; i++) {
+		ans *= ll(i);
+	}
+	return ans;
+}
+ 
+ll factorial_by_mod(int a, ll mod){
+	ll ans = 1;
+	for (int i = 2; i <= a; i++) {
+		ans *= ll(i);
+		ans %= mod;
+	}
+	return ans;
+}
+
+ll binpow(ll a, int b){
+	ll ans = 1;
+	while (b) {
+		if ((b & 1) == 1) {
+			ans *= a;
+		}
+		b >>= 1;
+		a *= a;
+	}
+	return ans;
+}
+ 
+bool is_square(ll a){
+	ll b = ll(sqrt(a));
+	return (b * b == a);
+}
+ 
+bool is_cube(ll a){
+	ll b = ll(cbrt(a));
+	return (b * b * b == a);
+}
+ 
+int digit_sum(ll a){
+	int sum = 0;
+	while (a) {
+		sum += int(a % 10);
+		a /= 10;
+	}
+	return sum;
+}
+
+ll gcd(ll a, ll b){
+	while (b) {
+		a %= b;
+		swap(a, b);
+	}
+	return a;}
+ 
+ll lcm(ll a, ll b){
+	return a / gcd(a, b) * b;
+}
+
+// Constants
+const int MAX = int(1e9 + 5);
+const ll MAXL = ll(1e18 + 5);
+const ll MOD = ll(1e9 + 7);
+const ll MOD2 = ll(998244353);
+
+const int LOGN = 20; // sparse table interval
+const int MAXN = 6e5+5; // fenwick = N, trie  = N * number of bits
+
+// solve time ~ 1hr 25 mins
+// OHHH this felt so satisfying when I solved it.
+// At first I was like what the fuck is this question, how the hell do you 
+// solve this?
+// Played around with intuition, and found the solution, fucking awesome.
+// So, how do we solve this?
+// The trick is Kadane's, which I think is the natural course of action to take 
+// when solving this problem, because of the title of this problem.
+// But first, lets make some observations...
+// We can break the problem down into chunks of subarrays.
+// specifically, for each s[i] == 0 seen, we split to a different subarray.
+// Then for each subarray, we run Kadane's on it.
+// eg. [1,2,3,-4,2,0,4,6,3,-1,2,0,-3,2,9,-4,0,1,9,1]
+// we can split this into: [1,2,3,-4,2], [4,6,3,-1,2], [1,9,1]
+// then run Kadane on each of em.
+// Among them we will get the max subarray sum, call it mx.
+// Now, lets make some observations.
+// Case 1: mx > k
+// Then in this case, no matter what we do, the subarray sum itself is 
+// already > k before we could even do anything, so immediately its just
+// impossible.
+// Case 2: mx == k
+// Then notice that we can just set all the 0s to -1e18. This way, no other
+// subarrays can combine with another subarray from another branch of the 
+// original 0 to combine to make a bigger max subarray sum.
+// Implicitly, we can make the max subarray sum k like this.
+// So, there is a solution, we just need to make all s[i] == '0' to -1e18.
+// Case 3: mx < k
+// This is the hard part.
+// To make life simple, we can set all but 1 s[i] == '0' to -1e18, using this
+// we know implicitly our max subarray sum will still be < k.
+// Now, we look the last s[i] == '0' part.
+// Can we make the max subarray sum == k? Yes.
+// The trick, is to do pref + suff relative to the position of that '0' until
+// we reach an s[i] == '0' on both sides (because the next s[i] == '0' is -1e18
+// which implicitly means our subarray sum is definitely too small now if
+// we include this element onwards).
+// Then, we get the max of pref and suff we seen, call it a and b.
+// a and b is at least 0, because if a or b is less than 0 we can always just
+// choose not to take a pref and suff in the 1st place.
+// So, the target will just be need = k - a - b.
+// then, we can set the last s[i] == '0' to need.
+// So, implicitly, we made the max subarray sum to just be some 
+// pref + s[i] + suff == k. Where pref and suff is relative to the last 
+// s[i] == '0' found.
+// And thats the solution.
+// This will always work because we basically allow both sides to combine via
+// s[i] to make the max subarray sum.
+
+void solve() {
+	ll n, k, m;
+    cin >> n >> k;
+    str s;
+    cin >> s;
+    s += 'p';
+    
+    vll a(n);
+    for (ll& x: a) cin >> x;
+
+    ll mx = -MAXL; // mx subarray sum so far
+    for (int i=0; i<n; i++){
+        if (s[i] == '1'){
+            ll ans = a[i];
+            ll sum = a[i];
+            for (int j=i+1; j<n+1; j++){
+                if (s[j] == '0' || s[j] == 'p') {i = j; break;}
+                sum = max(sum + a[j], a[j]);
+                ans = max(ans, sum);
+            }
+            mx = max(mx, ans);
+            if (mx > k) {cout << "No" << '\n'; return;}
+        }
+    }
+
+    // cout << mx << endl;
+    vll result(n);
+    if (mx == k){
+        cout << "Yes" << '\n';
+        for (int i=0; i<n; i++){
+            if (s[i] == '0') result[i] = -1e18;
+            else result[i] = a[i];
+        }
+        printVector(result);
+        return;
+    }
+
+    // mx < k
+    int j = -1; 
+    for (int i=0; i<n; i++){
+        if (s[i] == '0') {j = i; break;}
+    }
+
+    if (j == -1) {cout << "No" << '\n'; return;}
+
+    set<ll> s1, s2;
+    ll sum1 = 0, sum2 = 0;
+    s1.insert(0);
+    s2.insert(0);
+    for (int i=j+1; i<n; i++){
+        if (s[i] == '0') break;
+        else{
+            sum1 += a[i];
+            s1.insert(sum1);
+        }
+    } 
+    for (int i=j-1; i>=0; i--){
+        if (s[i] == '0') break;
+        else{
+            sum2 += a[i];
+            s2.insert(sum2);
+        }
+    } 
+
+    ll take = *s1.rbegin() + *s2.rbegin();
+    ll need = k - take;
+
+    for (int i=0; i<n; i++){
+        if (i == j) result[i] = need;
+        else if (s[i] == '0') result[i] = -1e18; 
+        else result[i] = a[i];
+    }
+
+    cout << "Yes" << '\n';
+    printVector(result);
+    
+}
+
+int main() {
+    fast_io();
+    // precompute_factorials(MAXN, MOD);
+    // sieve();
+    // precompute_prime_factors(); // modified sieve
+    int t;
+    cin >> t;
+    while (t--) solve();
+    // solve();
+    return 0;
+}

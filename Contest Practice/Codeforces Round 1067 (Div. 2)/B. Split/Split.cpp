@@ -1,0 +1,378 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using str = string;
+using ch = char;
+using ll = long long;
+using ull = unsigned long long;
+using db = double;
+using ld = long double;
+using vi = vector<int>;
+using vvi = vector<vector<int>>;
+using vll = vector<ll>;
+using vvll = vector<vector<ll>>;
+using vld= vector<ld>;
+using vvld = vector<vector<ld>>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using vstr = vector<str>;
+using vpii = vector<pair<int, int>>;
+using vpll = vector<pair<long long, long long>>;
+using vvpii = vector<vector<pair<int, int>>>;
+using vpstrstr = vector<pair<str, str>>;
+using vpvivi = vector<pair<vector<int>,vector<int>>>;
+using vvb = vector<vector<bool>>;
+using vb = vector<bool>;
+using vch = vector<char>;
+using vvch = vector<vector<char>>;
+using vvstr = vector<vector<str>>;
+using vd = vector<double>;
+
+#define mset multiset
+#define mmap multimap
+#define uset unordered_set
+#define umap unordered_map
+#define umset unordered_multiset
+#define ummap unordered_multimap
+#define pq priority_queue
+
+#define all(v) (v).begin(), (v).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define sz(x) (int)(x).size()
+#define clr(x) x.clear()
+#define pb push_back
+#define rs resize
+#define eb emplace_back
+#define rv reverse
+#define mp make_pair
+#define F first
+#define S second
+
+#define pf push_front
+#define pb push_back
+#define popf pop_front
+#define popb pop_back
+#define ft front
+#define bk back
+#define mxe max_element
+#define mne min_element
+
+#define lb lower_bound
+#define ub upper_bound
+#define bs binary_search
+
+// Utility Functions
+template <typename T>
+void printVector(const vector<T>& vec){
+    for (const auto& el : vec) cout << el << " ";
+    cout << "\n";
+}
+
+void precision(int x){
+	cout.setf(ios::fixed | ios::showpoint);
+	cout.precision(x);
+	return;
+}
+
+bool is_prime(int x){ // Iterate up to the square root of x
+    if (x == 1) return false;
+    for (int i = 2; i * i <= x; i++) { // If x is divisible by i, it's not prime
+        if (x % i == 0) return false;
+    }
+    return true; // If no divisors are found, x is prime
+}
+
+// Fast Input/Output
+void fast_io() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+}
+
+const ll K = 6e6+5; // change according to your needs
+vll mn(K, 0); // Smallest prime factor of each number
+vvll fcv(K); // Prime factorization for each number (only returns each distinct factor once)
+
+
+void precompute_prime_factors() { // Modified Sieve
+    mn[1] = 1; // Base case: 1 has no prime factors
+    for (ll i = 2; i < K; i++) {
+        if (!mn[i]) { // If i has no prime factor recorded yet, it is a prime number.
+            for (ll j = 1; j * i < K; ++j) {
+                if (!mn[i * j])
+                    mn[i * j] = i; // Mark i as the smallest prime factor for all multiples of i.
+            }
+        }
+    }
+
+    // Generate prime factor lists for every number up to N
+    for (int i = 1; i < K; i++) {
+        int u = i;
+        while (u != 1) {
+            int v = mn[u]; // Smallest prime factor of u
+            fcv[i].push_back(v); // Add it to the factorization of i
+            while (u % v == 0) u /= v; // Remove all occurrences of v from u, we only
+            // want to add it once since we want DISTINCT prime factors
+        }
+    }
+}
+
+void sieve() {
+    mn[1] = 1; // 1 is not prime
+    for (ll i = 2; i < K; i++) {
+        if (mn[i] == 0) { // i is prime
+            mn[i] = i;
+            for (ll j = i * i; j < K; j += i) {
+                if (mn[j] == 0) {
+                    mn[j] = i; // smallest prime factor of j
+                }
+            }
+        }
+    }
+}
+
+vi get_primes_up_to_K() {
+    vi primes;
+    for (ll i = 2; i < K; i++) {
+        if (mn[i] == i) primes.pb(i);
+    }
+    return primes;
+}
+
+// get all factors up to n
+vvi factors(K);
+
+void getAllFactors(){
+    for (int i = 1; i <= K; i++) {
+        for (int j = i; j <= K; j += i) {
+            factors[j].push_back(i); // i is a divisor of j
+        }
+    }
+}
+
+// Global Variables
+vector<ll> fact, inv_fact;
+
+// Function to calculate modular exponentiation
+ll mod_exp(ll base, ll exp, ll mod){
+    ll result = 1;
+    while (exp > 0) {
+        if (exp & 1) result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+// Precompute factorials and modular inverses
+void precompute_factorials(int n, ll mod){
+    fact.resize(n + 1);
+    inv_fact.resize(n + 1);
+    fact[0] = inv_fact[0] = 1;
+    for (int i = 1; i <= n; i++) fact[i] = (fact[i - 1] * i) % mod;
+    for (int i = 0; i <= n; i++) inv_fact[i] = mod_exp(fact[i], mod - 2, mod);
+}
+
+// Calculate nCr % MOD
+// to use this just call precompute_factorials
+ll nCr(int n, int r, ll mod){
+    if (n < r || r < 0) return 0;
+    return (((fact[n] * inv_fact[r]) % mod) * inv_fact[n - r]) % mod;
+}
+
+// Calculate nCr
+// don't need to call precompute_factorials for this.
+ll nCr_no_mod(int n, int r){
+    if (r < 0 || r > n) return 0;
+    ll res = 1;
+    for (int i=1; i<=r; i++){
+        res *= (n - i + 1);
+        res /= i;
+    }
+    return res;
+}
+
+ll factorial(int a){
+	ll ans = 1;
+	for (int i = 2; i <= a; i++) {
+		ans *= ll(i);
+	}
+	return ans;
+}
+ 
+ll factorial_by_mod(int a, ll mod){
+	ll ans = 1;
+	for (int i = 2; i <= a; i++) {
+		ans *= ll(i);
+		ans %= mod;
+	}
+	return ans;
+}
+
+ll binpow(ll a, int b){
+	ll ans = 1;
+	while (b) {
+		if ((b & 1) == 1) {
+			ans *= a;
+		}
+		b >>= 1;
+		a *= a;
+	}
+	return ans;
+}
+ 
+bool is_square(ll a){
+	ll b = ll(sqrt(a));
+	return (b * b == a);
+}
+ 
+bool is_cube(ll a){
+	ll b = ll(cbrt(a));
+	return (b * b * b == a);
+}
+ 
+int digit_sum(ll a){
+	int sum = 0;
+	while (a) {
+		sum += int(a % 10);
+		a /= 10;
+	}
+	return sum;
+}
+
+ll gcd(ll a, ll b){
+	while (b) {
+		a %= b;
+		swap(a, b);
+	}
+	return a;}
+ 
+ll lcm(ll a, ll b){
+	return a / gcd(a, b) * b;
+}
+
+// Constants
+const int MAX = int(1e9 + 5);
+const ll MAXL = ll(1e18 + 5);
+const ll MOD = ll(1e9 + 7);
+const ll MOD2 = ll(998244353);
+
+const int LOGN = 20; // sparse table interval
+const int MAXN = 6e5+5; // fenwick = N, trie  = N * number of bits
+
+// solve time ~ 1hr
+// Tbh, I kept getting distracted doing this problem, but holy this was a nice problem.
+// Hung out with friends, then called mom, then went on a bus to think about it, then woke up
+// next morning on a Sat to actually lock in to solve it, AND I FINALLY DID IT LOL.
+// Yea, I think this would take me a while to solve either way, lots of edge cases.
+// Greedy.
+// First of all, we wanna maximize our sum, one critical observation needed is that we should
+// split the elements into the 2 subgroups as evenly as possible.
+// We have 2 groups, a and b.
+// Eg. if we have 2k+1 elements of c[i],
+// then k elements of c[i] will go to a
+// and k elements of c[i] will go to b
+// this way we are greedily balancing our size as much as possible.
+// Note that our group a and b must be of size n.
+// So, its always gonna be a first then b then a then b then a then b until szA+szB == 2n.
+// Cool. But this is not done yet, we greedily split the elements of each c[i] so that
+// they are spread as evenly as possible, sometimes with one extra element on the other group.
+// But, we are not done yet.
+// First, lets add our answer to those elements that have a cnt that is odd on both groups first.
+// call it ans.
+// Making more observations you can notice that for any c[i] that has the same cnt on both
+// a and b, and cnt % 2 == 0, for every 2 pairs of this specific type, we can do ans += 4.
+// Eg. 
+// 2 2 3 3 
+// 2 2 3 3
+// this give +0 to our ans.
+// but notice that we can change this to:
+// 2 3 3 3
+// 2 2 2 3
+// then its gonna be +4 points for us.
+// So, for any 2 pairs of this type, where the cnt is equal on both size, and is EVEN, then we 
+// can +4.
+// But, what if we have an odd number of these pairs?
+// then the last one will not be able to add points? No!
+// This is the tricky part.
+// It is in fact possible, and there are a couple of ways for us to add +2 for this.
+// Also, for every pair of this type we can +4, individually they +2 so since we have one left
+// its +2 (just some extra info).
+// Now, notice that, there are 2 conditions which we can +2 for this last special type.
+// 1. a[p] % 2 == 1 && b[p] == q-1 and vice versa
+// 2. a[p] % 2 == 0 && b[p] == q-1 and vice versa
+// Case 1:
+// Eg.
+// 2 2 2 3 3 4 4
+// 2 2 3 3 4 4 4
+// notice that the 3 3 3 3 is the special type, and we have an odd cnt.
+// then we can change to:
+// 2 3 2 3 3 4 4 
+// 2 2 3 2 4 4 4 
+// which will +2.
+// Case 2:
+// Eg.
+// 1 1 2 3 3 4
+// 1 2 3 3 4 4
+// notice that the 3 3 3 is the special type, and we have an odd cnt.
+// then we can change to:
+// 1 1 2 3 4 4
+// 1 2 3 3 3 4
+// which will +2.
+// and thats the solution (my way).
+
+
+void solve() {
+	int n, k, m;
+    cin >> n;
+
+    map<int, int> cnt;
+    for (int i=0; i<2*n; i++){
+        int x;
+        cin >> x;
+        cnt[x]++;
+    }
+
+    ll ans = 0;
+    map<int, int> a;
+    map<int, int> b;
+    int sz1 = 0, sz2 = 0;
+    for (auto& [p, q] : cnt){
+        while (q){
+            if (sz1 <= sz2) {a[p]++; sz1++;}
+            else {b[p]++; sz2++;} 
+            q--; 
+        }
+    }
+
+    int x = 0, y = 0;
+    for (auto& [p, q] : a){
+        if (q % 2 == 1) ans++;
+        if (q % 2 == 0 && b[p] == q) x++;
+        if (q % 2 == 1 && b[p] == q-1) y++;
+        if (q % 2 == 0 && b[p] == q-1) y++;
+    }
+
+    for (auto& [p, q] : b){
+        if (q % 2 == 1) ans++;
+        if (q % 2 == 1 && a[p] == q-1) y++;
+        if (q % 2 == 0 && a[p] == q-1) y++;
+    }
+    
+    if (x % 2 == 1 && y >= 1) ans+=2;
+    cout << ans + 4*(x/2) << '\n';
+    
+
+}
+
+int main() {
+    fast_io();
+    // precompute_factorials(MAXN, MOD);
+    // sieve();
+    // precompute_prime_factors(); // modified sieve
+    int t;
+    cin >> t;
+    while (t--) solve();
+    // solve();
+    return 0;
+}

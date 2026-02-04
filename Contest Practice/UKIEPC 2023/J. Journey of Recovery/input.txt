@@ -1,0 +1,11 @@
+8
+egnx 0d00:10 delft 0d01:00
+delft 0d01:00 zad 0d09:00
+zad 0d09:01 prg 0d15:30
+prg 0d20:00 delft 1d02:15
+prg 0d22:00 delft 1d04:15
+zad 2d00:00 delft 3d00:00
+egnx 2d00:00 delft 2d02:00
+egnx 2d00:00 delft 2d02:00
+4
+1 2 3 4

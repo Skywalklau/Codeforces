@@ -1,0 +1,18 @@
+Essentially, a fenwick tree stores the frequency of a number, x , and when you query it with x, say query(x). It will return how many elements are <= x.
+
+When it comes to updating elements to the fenwick tree, ALWAYS remember that we are doing it via indexes, not actual values, that is why (most of the time) we need to compress the given
+data into a range from 1 to n.
+
+Before you do query(x) or update(x), we always want to make sure that everything is mapped into the range from 1 to n. Even when you do not need to compress the data, this means
+that the data is already in the range from 1 to n. But inherently, we are still using their INDEX of each a[i]. We just want to make sure that each a[i] is within the range 1 to n.
+
+Notice that, when you do a query or update, query(x) || update(x), x is actually an INDEX, not the actual a[i] values that was originally given (unless its already in the range from 1 to n,
+in that case, we don't need to do any compression)
+
+ALWAYS remember the function of a fenwick tree, we use it if we want updates ON THE FLY (meaning we update as we iterate through the array). Fenwicks also require values
+given to be in terms of INDEXES and it returns the NUMBER OF VALUES <= the number you give.
+
+How to identify when to use fenwick? When the question requires you to find the count of something at any point in time, usually the brute force solution would be N^2, but with fenwick its
+NLOGN.
+
+Note: fenwicks are 1-based.

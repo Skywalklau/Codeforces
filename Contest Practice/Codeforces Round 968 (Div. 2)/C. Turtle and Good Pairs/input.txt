@@ -1,0 +1,11 @@
+5
+3
+abc
+30
+edddfddddddddaaaddddaadddaaddddd
+6
+turtle
+8
+pppppppp
+10
+codeforces

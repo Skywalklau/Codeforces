@@ -1,0 +1,80 @@
+12
+9 5
+narek
+nanaa
+narxx
+naxxx
+narek
+nxxxx
+xxxxx
+narex
+knaxx
+3 5
+reekx
+xxxxx
+xxxxx
+8 6
+narekk
+naxxxx
+nkxxxx
+naarxx
+naakkx
+kxxxxx
+narexx
+narekx
+1 7
+narknaa
+9 2
+xx
+kx
+xx
+xx
+xx
+kk
+xx
+nx
+xx
+10 3
+kxx
+xxx
+knn
+xxx
+xxx
+xxx
+xxx
+xxx
+xxx
+xxx
+3 5
+arekk
+rekxx
+arekx
+5 4
+ekxx
+reek
+xxxx
+xxxx
+nark
+5 2
+xx
+kx
+xx
+xx
+xx
+1 8
+naaeekkx
+8 4
+eekk
+arek
+nare
+nnxx
+naar
+knar
+xxxx
+xxxx
+5 9
+aareekkxx
+nnareknaa
+nareknaxx
+narekeekk
+reeknarxx
