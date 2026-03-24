@@ -1,0 +1,106 @@
+30
+2 2
+aa
+aa
+2 2
+aa
+ab
+2 2
+aa
+ba
+2 2
+aa
+bb
+2 2
+ab
+aa
+2 2
+ab
+ab
+2 2
+ab
+ba
+2 2
+ab
+bb
+2 2
+ba
+aa
+2 2
+ba
+ab
+2 2
+ba
+ba
+2 2
+ba
+bb
+2 2
+bb
+aa
+2 2
+bb
+ab
+2 2
+bb
+ba
+2 2
+bb
+bb
+3 2
+aaa
+aaa
+3 2
+aaa
+aab
+3 2
+aaa
+aba
+3 2
+aaa
+abb
+3 2
+aaa
+baa
+3 2
+aaa
+bab
+3 2
+aaa
+bba
+3 2
+aaa
+bbb
+3 2
+aab
+aaa
+3 2
+aab
+aab
+3 2
+aab
+aba
+3 2
+aab
+abb
+3 2
+aab
+baa
+3 2
+aab
+bab
+3 2
+aab
+bba
+3 2
+aab
+bbb
+3 2
+aba
+aaa
+3 2
+aba
+aab
+3 2
+aba
+aba
